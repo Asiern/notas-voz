@@ -1,0 +1,25 @@
+{
+  "name": "notas-voz",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "tailwind": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/style.css",
+    "tailwind:watch": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/style.css -w",
+    "dev": "concurrently \"npm run tailwind:watch\" \"npm start\"",
+    "dev:debug": "cross-env NODE_ENV=development npm run dev"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "tailwindcss": "^3.3.5"
+  }
+}
