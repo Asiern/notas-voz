@@ -1,20 +1,38 @@
-// import { recordButton } from './recordButton.js'
+import { showElement, hideElement, formatTime } from './utils.js'
 
 const liRecordButton = document.getElementById('li-record-button')
 liRecordButton.addEventListener('click', () => {
   app.record()
 })
 
-const liStopRecordingButton = document.getElementById('li-stop-button')
+const liStopRecordingButton = document.getElementById('li-stop-record-button')
 liStopRecordingButton.addEventListener('click', () => {
   app.stopRecording()
 })
-// liRecordButton.innerHTML = recordFn()
+
+const liPlayButton = document.getElementById('li-play-button')
+liPlayButton.addEventListener('click', () => {
+  app.playAudio()
+})
+
+const playButtonTimer = document.getElementById('play-button-timer')
+const liStopButton = document.getElementById('li-stop-button')
+liStopButton.addEventListener('click', () => {
+  if (app.state === 'playing') app.stopAudio()
+  else app.playAudio()
+})
+
+const liStopButtonText = document.getElementById('li-stop-button-text')
+
+const liUploadButton = document.getElementById('li-upload-button')
+liUploadButton.addEventListener('click', () => {
+  // TODO: Upload the audio
+})
 
 class App {
   blob = null
   audio = null
-  state = {} // playing, recording, uploaded, deleting
+  state = 'inactive' // playing, recording, uploaded, deleting
   audioChunks = []
   recorder = null
 
@@ -44,9 +62,15 @@ class App {
 
     // Set the audio properties
     audio.onloadedmetadata = () => {}
-    audio.onended = () => {}
-    audio.ontimeupdate = () => {
-      this.setState('playing')
+    audio.onended = () => {
+      console.log('Audio ended')
+      this.setState('inactive')
+    }
+    audio.ontimeupdate = (e) => {
+      // Show the current time in play button
+      playButtonTimer.innerText = `${formatTime(
+        e.target.currentTime
+      )} / ${formatTime(e.target.duration)}`
     }
     audio.ondurationchange = () => {}
 
@@ -82,22 +106,48 @@ class App {
   }
 
   setState(state) {
-    this.state = Object.assign({}, this.state, state)
+    this.state = state //Object.assign({}, this.state, state)
     this.render()
   }
 
   render() {
+    console.log(this.state)
     switch (this.state) {
+      case 'inactive':
+        // Hide stop, stoprecording buttons
+        hideElement(liStopButton)
+        hideElement(liStopRecordingButton)
+        // Show record, play buttons
+        showElement(liRecordButton)
+        showElement(liPlayButton)
+        break
       case 'playing':
+        // Hide play button
+        hideElement(liPlayButton)
+        // Show stop button
+        showElement(liStopButton)
+        // Set stop button text to 'Stop'
+        liStopButtonText.innerText = 'Stop'
+        break
+      case 'recording':
+        // Hide record button
+        hideElement(liRecordButton)
+        // Show stoprecording button
+        showElement(liStopRecordingButton)
+        break
+      case 'stopped':
+        // Set stop button text to 'Resume'
+        liStopButtonText.innerText = 'Resume'
         break
       default:
-        console.error(`State ${this.state} not found`)
+        console.warn(`State ${this.state} not found`)
     }
   }
 
   record() {
     // Start recording
     this.recorder.start()
+    this.setState('recording')
   }
 
   stopRecording() {
@@ -105,6 +155,8 @@ class App {
     // Stop recording
     if (this.recorder && this.recorder.state !== 'inactive')
       this.recorder.stop()
+
+    this.setState('inactive')
   }
 
   playAudio() {

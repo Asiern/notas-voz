@@ -5,18 +5,134 @@
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/js/main.js" defer type="module"></script>
   </head>
-  <body class="flex flex-col p-24 gap-4 bg-white">
-    <h1><%= title %></h1>
-    <p>Sistemas Web (2023-2024)</p>
-    <button class="p-4 bg-sky-300 rounded-md shadow-md" id="li-record-button">
-      Start Recording
+  <body class="flex flex-col font-montserrat p-24 gap-4 bg-white">
+    <h1 class="text-2xl font-bold"><%= title %></h1>
+    <h2 class="text-xl font-semibold mb-8">Sistemas Web (2023-2024)</h2>
+    <button
+      class="flex flex-row gap-4 justify-center items-center p-4 bg-red-500 text-white font-semibold rounded-md shadow-md"
+      id="li-record-button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="icon icon-tabler icon-tabler-circle-dot-filled"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path
+          d="M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-5 6.66a2 2 0 0 0 -1.977 1.697l-.018 .154l-.005 .149l.005 .15a2 2 0 1 0 1.995 -2.15z"
+          stroke-width="0"
+          fill="currentColor"
+        />
+      </svg>
+      <span>Start Recording</span>
     </button>
-    <button class="p-4 bg-sky-300 rounded-md shadow-md" id="li-stop-button">
-      Stop Recording
+    <button
+      class="flex flex-row gap-4 justify-center items-center animate-pulse p-4 bg-red-500 text-white font-semibold rounded-md shadow-md hidden"
+      id="li-stop-record-button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="icon icon-tabler icon-tabler-player-stop-filled"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path
+          d="M17 4h-10a3 3 0 0 0 -3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3 -3v-10a3 3 0 0 0 -3 -3z"
+          stroke-width="0"
+          fill="currentColor"
+        />
+      </svg>
+      <span>Stop Recording</span>
     </button>
-    <button class="p-4 bg-sky-300 rounded-md shadow-md" id="uploadRecordingBtn">
-      Upload Recording
+    <button
+      class="flex flex-row gap-4 justify-center items-center p-4 bg-black text-white font-semibold rounded-md shadow-md"
+      id="li-play-button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="icon icon-tabler icon-tabler-player-play-filled"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path
+          d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"
+          stroke-width="0"
+          fill="currentColor"
+        />
+      </svg>
+      <span>Play</span>
     </button>
-    <audio id="audio-player" controls></audio>
+    <button
+      class="hidden flex flex-row gap-4 justify-center items-center p-4 bg-black text-white font-semibold rounded-md shadow-md"
+      id="li-stop-button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="icon icon-tabler icon-tabler-player-pause"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path
+          d="M6 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"
+        />
+        <path
+          d="M14 5m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"
+        />
+      </svg>
+      <span id="li-stop-button-text">Stop</span>
+      <span id="play-button-timer"></span>
+    </button>
+    <button
+      class="flex flex-row gap-4 justify-center items-center p-4 bg-black text-white font-semibold rounded-md shadow-md"
+      id="li-upload-button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="icon icon-tabler icon-tabler-upload"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+        <path d="M7 9l5 -5l5 5" />
+        <path d="M12 4l0 12" />
+      </svg>
+      <span>Upload Recording</span>
+    </button>
+    <audio id="audio-player" class="mt-8" controls></audio>
   </body>
 </html>
