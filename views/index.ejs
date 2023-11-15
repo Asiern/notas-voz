@@ -3,10 +3,20 @@
   <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/style.css" />
-    <script src="/js/main.js" defer></script>
+    <script src="/js/main.js" defer type="module"></script>
   </head>
-  <body>
+  <body class="flex flex-col p-24 gap-4 bg-white">
     <h1><%= title %></h1>
     <p>Sistemas Web (2023-2024)</p>
+    <button class="p-4 bg-sky-300 rounded-md shadow-md" id="li-record-button">
+      Start Recording
+    </button>
+    <button class="p-4 bg-sky-300 rounded-md shadow-md" id="li-stop-button">
+      Stop Recording
+    </button>
+    <button class="p-4 bg-sky-300 rounded-md shadow-md" id="uploadRecordingBtn">
+      Upload Recording
+    </button>
+    <audio id="audio-player" controls></audio>
   </body>
 </html>
