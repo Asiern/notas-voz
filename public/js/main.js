@@ -99,6 +99,7 @@ class App {
       // Get the blob
       const blob = new Blob(this.audioChunks, { type: 'audio/wav' })
       this.loadBlob(blob)
+      this.audioChunks = []
     }
 
     // Set the recorder object
