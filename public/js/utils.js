@@ -6,6 +6,14 @@ function showElement(e) {
   e.setAttribute('class', e.getAttribute('class').replaceAll('hidden', ''))
 }
 
+function disableElement(e) {
+  e.setAttribute('disabled', '')
+}
+
+function enableElement(e) {
+  e.removeAttribute('disabled')
+}
+
 function formatTime(seconfs) {
   const minutes = Math.floor(seconfs / 60)
   let seconds = seconfs - minutes * 60
@@ -14,4 +22,4 @@ function formatTime(seconfs) {
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
-export { hideElement, showElement, formatTime }
+export { hideElement, showElement, formatTime, disableElement, enableElement }
