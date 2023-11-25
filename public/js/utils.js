@@ -1,5 +1,6 @@
 import { URL } from './constants.js'
 import moment from '../utils/moment/moment.js'
+
 moment.locale('es')
 
 function hideElement(e) {
@@ -50,7 +51,14 @@ function renderAudioList(audioList) {
     const filenameContainer = document.createElement('div')
     filenameContainer.onclick = () => {
       // Copy the audio url to the clipboard
-      navigator.clipboard.writeText(`${URL}/play/${audio.filename}`)
+      navigator.clipboard.writeText(`${URL}/play/${audio.filename}`).then(
+        () => {
+          Snackbar.show({text:'Copiado al portapapeles', actionTextColor: '#EF4444'})
+        },
+        () => {
+          Snackbar.show({text:'No se pudo copiar al portapapeles', actionTextColor: '#EF4444'})
+        },
+      );
     }
     filenameContainer.setAttribute(
       'class',
