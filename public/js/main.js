@@ -1,4 +1,14 @@
-import { showElement, hideElement, formatTime, disableElement, enableElement } from './utils.js'
+import {
+  showElement,
+  hideElement,
+  formatTime,
+  disableElement,
+  enableElement,
+  renderAudioList,
+} from './utils.js'
+
+
+import  uuid  from '../utils/uuid/v4.js'
 
 const liRecordButton = document.getElementById('li-record-button')
 liRecordButton.addEventListener('click', () => {
@@ -33,6 +43,7 @@ class App {
   state = {}
   audioChunks = []
   recorder = null
+  uuid = null
 
   constructor() {
     this.init()
@@ -47,6 +58,11 @@ class App {
       console.log('Initializing recorder...')
       this.initRecord(stream)
     })
+    if (!localStorage.getItem('uuid')) {
+      // si no está almacenado en localStorage
+      localStorage.setItem('uuid', uuid()) // genera y gaurda el uuid
+    }
+    this.uuid = localStorage.getItem('uuid') // logra el uuid desde localStorage
 
     // Initialize the audio context
     this.initAudio()
@@ -59,7 +75,7 @@ class App {
     const audio = new Audio()
 
     // Set the audio properties
-    audio.onloadedmetadata = () => { }
+    audio.onloadedmetadata = () => {}
     audio.onended = () => {
       console.log('Audio ended')
       this.setState({ playing: false })
@@ -70,7 +86,7 @@ class App {
         e.target.currentTime
       )} / ${formatTime(e.target.duration)}`
     }
-    audio.ondurationchange = () => { }
+    audio.ondurationchange = () => {}
 
     // Set the audio object
     this.audio = audio
@@ -197,9 +213,43 @@ class App {
     this.audio.pause()
   }
 
-  uploadAudio() { }
-  deleteFile() { }
+  upload() {
+    this.setState({ uploading: true }) // estado actual: uploading
+    const body = new FormData() // Mediante FormData podremos subir el audio al servidor
+    body.append('recording', this.blob) // en el atributo recording de formData guarda el audio para su posterior subida
+    fetch('/api/upload/' + this.uuid, {
+      method: 'POST', // usaremos el método POST para subir el audio
+      body,
+    })
+      .then((res) => res.json()) // el servidor, una vez recogido el audio, devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
+      .then((json) => {
+        this.setState({
+          files: json.files, // todos los ficheros del usuario
+          uploading: false, // actualizar el estado actual
+          uploaded: true, // actualizar estado actual
+        })
+      })
+      .catch((err) => {
+        this.setState({ error: true })
+      })
+  }
+  deleteFile() {}
+
 }
+
 
 const app = new App()
 app.init()
+
+function loadAudioList() {
+  fetch('/api/list/')
+    .then((res) => res.json())
+    .then((json) => {
+    renderAudioList(json.files)
+    })
+    .catch((err) => {
+      app.setState({ error: true })
+    })
+}
+
+loadAudioList()
