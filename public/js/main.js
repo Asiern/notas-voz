@@ -5,10 +5,15 @@ import {
   disableElement,
   enableElement,
   renderAudioList,
+  getSharedAudioBlob
 } from './utils.js'
 
 
 import  uuid  from '../utils/uuid/v4.js'
+
+const query = window.location.search // obtiene la query de la url
+const urlParams = new URLSearchParams(query) // crea un objeto con los parámetros de la query
+const playMode = urlParams.get('play') // obtiene el valor del parámetro play
 
 const liRecordButton = document.getElementById('li-record-button')
 liRecordButton.addEventListener('click', () => {
@@ -66,6 +71,15 @@ class App {
 
     // Initialize the audio context
     this.initAudio()
+
+    // Set the initial state
+    if(playMode){
+      // Get audio from server
+      getSharedAudioBlob(playMode).then((blob) => {
+        this.loadBlob(blob)
+      })
+      this.setState({ sharing: true })
+    }
 
     console.log('App initialized')
   }
@@ -132,6 +146,17 @@ class App {
 
   render() {
     console.log(this.state)
+
+    // Sharing state
+    // When user is listening to shared audio
+    if (this.state.sharing) {
+      showElement(liPlayButton) // Show the play button
+      hideElement(liRecordButton) // Hide the record button
+      hideElement(liStopButton) // Hide the stop button
+      hideElement(liUploadButton) // Hide the upload button
+      hideElement(liStopRecordingButton) // Hide the stop recording button
+    }
+
     // Play state
     if (this.state.playing) {
       hideElement(liPlayButton) // Hide the play button

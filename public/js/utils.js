@@ -123,6 +123,16 @@ function renderAudioList(audioList) {
   })
 }
 
+async function getSharedAudioBlob(id){
+  return new Promise((resolve, reject) => {
+      // Get audio from MongoDB
+      fetch(`${URL}/api/play/${id}`, {method: 'GET'})
+      .then(res => res.blob())
+      .then(blob => {resolve(blob)})
+      .catch(err => {reject(err)})
+  })
+}
+
 export {
   hideElement,
   showElement,
@@ -130,4 +140,5 @@ export {
   disableElement,
   enableElement,
   renderAudioList,
+  getSharedAudioBlob
 }
