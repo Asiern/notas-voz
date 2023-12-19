@@ -51,12 +51,12 @@ function renderAudioList(audioList) {
     const filenameContainer = document.createElement('div')
     filenameContainer.onclick = () => {
       // Copy the audio url to the clipboard
-      navigator.clipboard.writeText(`${URL}/play/${audio.filename}`).then(
+      navigator.clipboard.writeText(`${URL}/?play=${audio.file}`).then(
         () => {
-          Snackbar.show({text:'Copiado al portapapeles', actionTextColor: '#EF4444'})
+          Snackbar.show({ text: 'Copiado al portapapeles', actionTextColor: '#EF4444' })
         },
         () => {
-          Snackbar.show({text:'No se pudo copiar al portapapeles', actionTextColor: '#EF4444'})
+          Snackbar.show({ text: 'No se pudo copiar al portapapeles', actionTextColor: '#EF4444' })
         },
       );
     }
@@ -69,7 +69,7 @@ function renderAudioList(audioList) {
     )
     const filename = document.createElement('span')
     filename.setAttribute('class', 'text-sm font-montserrat')
-    filename.innerHTML = audio.filename
+    filename.innerHTML = audio.file
     filenameContainer.appendChild(icon)
     filenameContainer.appendChild(filename)
 
@@ -97,14 +97,15 @@ function renderAudioList(audioList) {
         return
       }
 
-      // TODO Delete the audio
-      fetch(`${URL}/delete/${uuid}/${audio.filename}`, {
-        method: 'DELETE',
+      // Delete the audio
+      fetch(`${URL}/api/delete/${uuid}/${audio.file}`, {
+        method: 'POST',
       })
         .then((res) => res.json())
         .then((res) => {
           if (res.success) {
-            // TODO Re render the audio list
+            // Re render the audio list
+            renderAudioList(res.files)
           }
         })
         .catch((err) => {
@@ -123,13 +124,18 @@ function renderAudioList(audioList) {
   })
 }
 
-async function getSharedAudioBlob(id){
+async function getSharedAudioBlob(id) {
   return new Promise((resolve, reject) => {
-      // Get audio from MongoDB
-      fetch(`${URL}/api/play/${id}`, {method: 'GET'})
-      .then(res => res.blob())
-      .then(blob => {resolve(blob)})
-      .catch(err => {reject(err)})
+    // Get audio from MongoDB
+    fetch(`${URL}/api/play/${id}`, { method: 'GET' })
+      .then(res => {
+        if (res.status === 404) reject("No se encontró el fichero") // Error
+        if (res.status === 500) reject("Error del servidor") // Error
+        if (res.status !== 200) reject("Error desconocido") // Error
+        res.blob()
+      })
+      .then(blob => { resolve(blob) })
+      .catch(err => { reject(err) })
   })
 }
 

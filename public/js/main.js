@@ -8,8 +8,9 @@ import {
   getSharedAudioBlob
 } from './utils.js'
 
+const DEBUG = true
 
-import  uuid  from '../utils/uuid/v4.js'
+import uuid from '../utils/uuid/v4.js'
 
 const query = window.location.search // obtiene la query de la url
 const urlParams = new URLSearchParams(query) // crea un objeto con los parámetros de la query
@@ -39,8 +40,13 @@ liStopButton.addEventListener('click', () => {
 
 const liUploadButton = document.getElementById('li-upload-button')
 liUploadButton.addEventListener('click', () => {
-  // TODO: Upload the audio
+  // Upload the audio
+  app.upload()
 })
+
+
+const audioListElement = document.getElementById('audio-list')
+
 
 class App {
   blob = null
@@ -55,12 +61,12 @@ class App {
   }
 
   init() {
-    console.log('Initializing app...')
+    DEBUG && console.log('Initializing app...')
 
     // Ask for permission to use the microphone
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       // Initialize the recorder
-      console.log('Initializing recorder...')
+      DEBUG && console.log('Initializing recorder...')
       this.initRecord(stream)
     })
     if (!localStorage.getItem('uuid')) {
@@ -73,15 +79,27 @@ class App {
     this.initAudio()
 
     // Set the initial state
-    if(playMode){
+    if (playMode) {
+      DEBUG && console.log('Play mode ON, getting shared audio...')
       // Get audio from server
       getSharedAudioBlob(playMode).then((blob) => {
+        DEBUG && console.log(blob)
+
         this.loadBlob(blob)
+      }, (err) => {
+        console.error(err)
+        // Snackbar to show the error
+        Snackbar.show({ text: err, actionTextColor: '#EF4444' })
+
+        setTimeout(() => {
+          // Redirect to home
+          document.location.href = "/";
+        }, 3000)
       })
-      this.setState({ sharing: true })
+      this.setState({ sharing: true, playing: false, recording: false })
     }
 
-    console.log('App initialized')
+    DEBUG && console.log('App initialized')
   }
 
   initAudio() {
@@ -89,9 +107,9 @@ class App {
     const audio = new Audio()
 
     // Set the audio properties
-    audio.onloadedmetadata = () => {}
+    audio.onloadedmetadata = () => { }
     audio.onended = () => {
-      console.log('Audio ended')
+      DEBUG && console.log('Audio ended')
       this.setState({ playing: false })
     }
     audio.ontimeupdate = (e) => {
@@ -100,7 +118,7 @@ class App {
         e.target.currentTime
       )} / ${formatTime(e.target.duration)}`
     }
-    audio.ondurationchange = () => {}
+    audio.ondurationchange = () => { }
 
     // Set the audio object
     this.audio = audio
@@ -114,6 +132,8 @@ class App {
     // Link the audio object to the blob
     const audioPlayer = document.getElementById('audio-player')
     audioPlayer.src = audioUrl
+
+    this.blob = blob
   }
 
   initRecord(stream) {
@@ -145,16 +165,18 @@ class App {
   }
 
   render() {
-    console.log(this.state)
+    DEBUG && console.log(this.state)
 
     // Sharing state
     // When user is listening to shared audio
     if (this.state.sharing) {
+      console.log("Sharing")
       showElement(liPlayButton) // Show the play button
       hideElement(liRecordButton) // Hide the record button
       hideElement(liStopButton) // Hide the stop button
       hideElement(liUploadButton) // Hide the upload button
       hideElement(liStopRecordingButton) // Hide the stop recording button
+      hideElement(audioListElement) // Hide the audio list
     }
 
     // Play state
@@ -178,7 +200,7 @@ class App {
     }
 
     // Not recording state
-    if (!this.state.recording) {
+    if (!this.state.recording && !this.state.sharing) {
       showElement(liRecordButton) // Show the record button
       hideElement(liStopRecordingButton) // Hide the stop recording button
       enableElement(liPlayButton) // Enable the play button
@@ -240,25 +262,36 @@ class App {
 
   upload() {
     this.setState({ uploading: true }) // estado actual: uploading
+
     const body = new FormData() // Mediante FormData podremos subir el audio al servidor
-    body.append('recording', this.blob) // en el atributo recording de formData guarda el audio para su posterior subida
+    body.append('recording', this.blob) // añadimos el audio al FormData
+
+    if (!this.blob) {
+      DEBUG && console.log('No blob')
+      return
+    }
+
     fetch('/api/upload/' + this.uuid, {
       method: 'POST', // usaremos el método POST para subir el audio
       body,
     })
       .then((res) => res.json()) // el servidor, una vez recogido el audio, devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
       .then((json) => {
+        console.log(json)
         this.setState({
           files: json.files, // todos los ficheros del usuario
           uploading: false, // actualizar el estado actual
           uploaded: true, // actualizar estado actual
         })
+        loadAudioList(json.files) // volver a cargar la lista de audios
       })
       .catch((err) => {
+        DEBUG && console.log(err)
         this.setState({ error: true })
       })
   }
-  deleteFile() {}
+
+  deleteFile() { }
 
 }
 
@@ -266,15 +299,22 @@ class App {
 const app = new App()
 app.init()
 
+// Function to load the audio 
+// list by fetching the API 
+// and rendering the list
 function loadAudioList() {
-  fetch('/api/list/')
+  fetch(`/api/list/${app.uuid}`)
     .then((res) => res.json())
     .then((json) => {
-    renderAudioList(json.files)
+      DEBUG && console.log("Audio")
+      DEBUG && console.log(json)
+      renderAudioList(json)
     })
     .catch((err) => {
+      DEBUG && console.log(err)
       app.setState({ error: true })
     })
 }
 
+// Load the audio list if not in sharing mode
 loadAudioList()
