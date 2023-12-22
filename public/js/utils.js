@@ -139,6 +139,20 @@ async function getSharedAudioBlob(id) {
   })
 }
 
+function cleanup() {
+  // Clear files older than 5 days from db with an interval of 1 hour
+  setInterval(() => {
+    fetch(`${URL}/api/cleanup`, { method: 'POST' })
+      .then(res => {
+        if (res.status !== 200) console.log("Error al limpiar la base de datos")
+        else {
+          console.log("Base de datos limpiada")
+          renderAudioList(res.files)
+        }
+      })
+  }, 1000 * 60 * 60)
+}
+
 export {
   hideElement,
   showElement,
@@ -146,5 +160,6 @@ export {
   disableElement,
   enableElement,
   renderAudioList,
-  getSharedAudioBlob
+  getSharedAudioBlob,
+  cleanup
 }

@@ -5,7 +5,8 @@ import {
   disableElement,
   enableElement,
   renderAudioList,
-  getSharedAudioBlob
+  getSharedAudioBlob,
+  cleanup
 } from './utils.js'
 
 const DEBUG = true
@@ -95,6 +96,9 @@ class App {
     if (!window.localStorage.getItem('uuid')) {
       window.localStorage.setItem('uuid', this.uuid)
     }
+
+    // Cleanup the database
+    cleanup()
 
     // Initialize the audio context
     this.initAudio()
@@ -338,4 +342,4 @@ function loadAudioList() {
 }
 
 // Load the audio list if not in sharing mode
-loadAudioList()
+!playMode && loadAudioList()

@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const mongojs = require('mongojs')
-const ObjectId = mongojs.ObjectId
 const MONGO_URL = 'mongodb://localhost:27017/'
 const db = mongojs(MONGO_URL, ['NotasDeVoz'])
 const multer = require("multer")
@@ -114,7 +113,7 @@ router.post("/upload/:name", (req, res) => {
     // Guardar el audio en la base de datos
     await db.recordings.insert({
       uuid: req.params.name,
-      date: (new Date()).toISOString(),
+      date: Date.now(),
       file: req.file.filename
     })
 
@@ -179,6 +178,18 @@ router.post("/delete/:uuid/:file", (req, res) => {
     console.log(err)
     res.sendStatus(500)
   }
+})
+
+router.post("/cleanup", (req, res) => {
+  db.recordings.remove({ date: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5) } }, (err) => {
+    if (err) {
+      res.sendStatus(500)
+      return
+    }
+    handleList(req.session.user).then((docs) => {
+      res.json(docs)
+    })
+  })
 })
 
 module.exports = router
