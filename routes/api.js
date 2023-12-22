@@ -9,9 +9,6 @@ const crypto = require("crypto")
 const fs = require("fs")
 const path = require("path")
 
-// router.get('/', (req, res) => {
-//   res.json({ message: 'API funcionando!' })
-// })
 
 /**
  * TODO: Get the last 5 recordings of a user

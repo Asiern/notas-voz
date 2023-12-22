@@ -10,8 +10,6 @@ import {
 
 const DEBUG = true
 
-import uuid from '../utils/uuid/v4.js'
-
 const query = window.location.search // obtiene la query de la url
 const urlParams = new URLSearchParams(query) // crea un objeto con los parámetros de la query
 const playMode = urlParams.get('play') // obtiene el valor del parámetro play
@@ -44,9 +42,31 @@ liUploadButton.addEventListener('click', () => {
   app.upload()
 })
 
+const liLogoutButton = document.getElementById('li-logout-button')
+liLogoutButton.addEventListener('click', () => {
+  // Logout
+  fetch('/users/logout', {
+    method: 'POST',
+  })
+    .then((res) => {
+      if (res.status !== 200) {
+        console.log('Hubo un problema al cerrar sesión')
+        return
+      }
+      window.location.href = '/login'
+    })
+    .catch((err) => {
+      DEBUG && console.log(err)
+      app.setState({ error: true })
+    })
+})
+if (playMode) {
+  hideElement(liLogoutButton)
+}
+
 
 const audioListElement = document.getElementById('audio-list')
-
+const user = document.getElementById('li-user-id').innerText
 
 class App {
   blob = null
@@ -69,11 +89,12 @@ class App {
       DEBUG && console.log('Initializing recorder...')
       this.initRecord(stream)
     })
-    if (!localStorage.getItem('uuid')) {
-      // si no está almacenado en localStorage
-      localStorage.setItem('uuid', uuid()) // genera y gaurda el uuid
+
+    // Set the user id
+    this.uuid = user
+    if (!window.localStorage.getItem('uuid')) {
+      window.localStorage.setItem('uuid', this.uuid)
     }
-    this.uuid = localStorage.getItem('uuid') // logra el uuid desde localStorage
 
     // Initialize the audio context
     this.initAudio()
