@@ -132,9 +132,13 @@ async function getSharedAudioBlob(id) {
         if (res.status === 404) reject("No se encontró el fichero") // Error
         if (res.status === 500) reject("Error del servidor") // Error
         if (res.status !== 200) reject("Error desconocido") // Error
+
         res.blob()
+          .then(blob => {
+            resolve(blob)
+          })
+          .catch(err => { reject(err) })
       })
-      .then(blob => { resolve(blob) })
       .catch(err => { reject(err) })
   })
 }
