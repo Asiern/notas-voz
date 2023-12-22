@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "start:mon": "nodemon ./bin/www",
     "start": "node ./bin/www",
     "tailwind": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/style.css",
     "tailwind:watch": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/style.css -w",
-    "dev": "concurrently \"npm run tailwind:watch\" \"npm start\"",
+    "dev": "concurrently \"npm run tailwind:watch\" \"npm run start:mon\"",
     "dev:debug": "cross-env NODE_ENV=development npm run dev"
   },
   "dependencies": {
@@ -15,10 +16,13 @@
     "ejs": "~2.6.1",
     "es": "^0.8.0",
     "express": "~4.16.1",
+    "express-session": "^1.17.3",
     "http-errors": "~1.6.3",
     "moment": "^2.29.4",
+    "mongojs": "^3.1.0",
     "morgan": "~1.9.1",
-    "uuidv4": "^6.2.13"
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.0.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
