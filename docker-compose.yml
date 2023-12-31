@@ -8,3 +8,8 @@ services:
       - 27017:27017
     volumes:
       - ./data/mongo:/data/db
+  proxy:
+    build: server/
+    restart: always
+    ports:
+      - 80:80
