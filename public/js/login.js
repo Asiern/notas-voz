@@ -1,3 +1,4 @@
+import { showElement, hideElement } from "./utils.js"
 const register = document.getElementById("register");
 
 register.addEventListener("click", function () {
@@ -5,6 +6,9 @@ register.addEventListener("click", function () {
 });
 
 window.localStorage.clear("uuid");
+
+const error = document.getElementById("error");
+
 
 document.getElementById("login").addEventListener("click", function () {
     const username = document.getElementById("username").value;
@@ -27,8 +31,10 @@ document.getElementById("login").addEventListener("click", function () {
     }).then((response) => {
         if (response.status !== 200) {
             console.log('Hubo un problema al iniciar sesion')
+            showElement(error)
             return
         }
+        hideElement(error)
         window.location.href = '/'
     })
 });
