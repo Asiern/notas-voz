@@ -5,9 +5,9 @@ const MONGO_URL = 'mongodb://localhost:27017/'
 const db = mongojs(MONGO_URL, ['NotasDeVoz'])
 const multer = require("multer")
 const crypto = require("crypto")
-const fs = require("fs")
+const { unlink } = require("node:fs")
 const path = require("path")
-
+const fs = require("fs")
 
 /**
  * TODO: Get the last 5 recordings of a user
@@ -164,7 +164,12 @@ router.post("/delete/:uuid/:file", (req, res) => {
       }
 
       // Delete the file from fs
-      fs.rmSync(path.join(__dirname, '../uploads/', file))
+      unlink(path.join(__dirname, '../uploads/', file), (err) => {
+        if (err) {
+          res.sendStatus(500)
+          return
+        }
+      })
 
       db.recordings.remove({ uuid, file }, async (err) => {
         if (err) {
